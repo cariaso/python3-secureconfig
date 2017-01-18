@@ -71,11 +71,15 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         else:
             return raw_val
 
-    def get(self, sec, key, default=None):
+    def get(self, sec, key, default=None, fallback=None):
         '''Get the value from the config, possibly decrypting it.'''
         raw_val = self.raw_get(sec, key)
         if raw_val is None:
-            return default
+            if default is None:
+                # https://github.com/cimichaelm/python3-secureconfig/issues/2
+                return fallback
+            else:
+                return default
 
         val = self.val_decrypt(raw_val, sec=sec, key=key)
         return val
