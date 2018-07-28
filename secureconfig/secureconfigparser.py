@@ -104,7 +104,8 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
 
     def items(self, sec):
         '''Iterate over the items; decoding the values.'''
-        for (key, val) in self.raw_items(sec):
+        #for (key, val) in self.raw_items(sec):
+        for (key, val) in self.items(sec):
             val = self.val_decrypt(val, sec=sec, key=key)
             yield (key, val)
 
