@@ -71,7 +71,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         else:
             return raw_val
 
-    def get(self, sec, key, default=None, fallback=None):
+    def get(self, sec, key, default=None, fallback=None, raw=False):
         '''Get the value from the config, possibly decrypting it.'''
         raw_val = self.raw_get(sec, key)
         if raw_val is None:
@@ -104,8 +104,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
 
     def items(self, sec):
         '''Iterate over the items; decoding the values.'''
-        #for (key, val) in self.raw_items(sec):
-        for (key, val) in super().items(sec):
+        for (key, val) in self.raw_items(sec):
             val = self.val_decrypt(val, sec=sec, key=key)
             yield (key, val)
 
