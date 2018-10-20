@@ -86,7 +86,7 @@ class SecureConfig(cryptkeeper_access_methods):
         return self.ck.crypter.encrypt(buf)
 
     def _fill(self, txt=''):
-        self.cfg = literal_eval(txt)
+        self.cfg = literal_eval(txt.decode('ascii'))
 
     def _read(self, filepath):
         return open(filepath, 'rb' ).read()
@@ -154,8 +154,9 @@ class SecureConfig(cryptkeeper_access_methods):
         if self.readonly:
             raise ReadOnlyConfigError
         try:
-            buf = self._encrypt(self._serialize())
+            almost = self._serialize().encode('ascii')
+            buf = self._encrypt(almost)
         except AttributeError:
             # no self.ck / no key supplied
             buf = self._serialize()
-        fh.write(buf)
+        fh.write(buf.decode('ascii'))

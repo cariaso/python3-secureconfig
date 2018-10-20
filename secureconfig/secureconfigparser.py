@@ -44,10 +44,17 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
     def read(self, filenames):
         '''Read the list of config files.'''
         #print("[DEBUG] filenames: ", filenames)
+        for fn in filenames:
+            assert(type(fn) == str)
+
         ConfigParser.read(self, filenames)
 
     def raw_get(self, sec, key, default=None):
         '''Get the raw value without decoding it.'''
+        assert(type(sec) == str)
+        assert(type(key) == str)
+        if default is not None:
+            assert(type(default) == str)
         try:
             return ConfigParser.get(self, sec, key, raw=True)
             #return super(SecureConfigParser, self).get(sec, key)
@@ -58,6 +65,9 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
             
     def raw_set(self, sec, key, val):
         '''Set the value without encrypting it.'''
+        assert(type(sec) == str)
+        assert(type(key) == str)
+        assert(type(val) == str)
         return ConfigParser.set(self, sec, key, val) 
 
     def raw_items(self, sec):
@@ -66,6 +76,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
 
     def val_decrypt(self, raw_val, **kwargs):
         '''Decrypt supplied value if it appears to be encrypted.'''
+        assert(type(raw_val) == str)
         if self.ck and raw_val.startswith(self.ck.sigil):
             return self.ck.crypter.decrypt(raw_val.split(self.ck.sigil)[1].encode()).decode()
         else:
@@ -73,6 +84,13 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
 
     def get(self, sec, key, default=None, fallback=None, raw=False):
         '''Get the value from the config, possibly decrypting it.'''
+        assert(type(sec) == str)
+        assert(type(key) == str)
+        if default is not None:
+            assert(type(default) == str)
+        if fallback is not None:
+            assert(type(fallback) == str)
+        assert(type(raw) == bool)
         raw_val = self.raw_get(sec, key)
         if raw_val is None:
             if default is None:
@@ -89,9 +107,14 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
             Otherwise just update it.  supply encrypt=True to encrypt
             a value that was not previously encrypted.
         '''
+        assert(type(sec) == str)
+        assert(type(key) == str)
+        assert(type(new_val) == str)
+        assert(type(encrypt) == bool)
+
         if not self.has_option(sec, key):
             if encrypt==True:
-                new_val = self.ck.sigil + self.ck.encrypt(new_val)
+                new_val = self.ck.sigil + self.ck.encrypt(new_val).decode('ascii')
             return self.raw_set(sec, key, new_val)
         
         old_raw_val = self.raw_get(sec, key)
@@ -104,8 +127,12 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
 
     def items(self, sec):
         '''Iterate over the items; decoding the values.'''
+        assert(type(sec) == str)
         for (key, val) in self.raw_items(sec):
+            assert(type(key) == str)
+            assert(type(val) == str)
             val = self.val_decrypt(val, sec=sec, key=key)
+            assert(type(val) == str)
             yield (key, val)
 
     def print_decrypted(self):

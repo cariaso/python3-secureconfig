@@ -115,7 +115,7 @@ class CryptKeeper(object):
         
     def encrypt(self, inp):
         'takes plaintext string and returns encrypted string'
-        return self.crypter.encrypt(inp)
+        return self.crypter.encrypt(inp.encode('ascii'))
         
     def decrypt(self, inp):
         'takes encrypted string and returns plaintext string' 
