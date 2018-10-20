@@ -71,7 +71,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         out = ConfigParser.set(self, sec, key, val)
         if out is not None:
             assert(type(out) == str)
-        return val
+        return out
 
     def raw_items(self, sec):
         '''Return the items in a section without decrypting the values.'''
@@ -84,7 +84,8 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         '''Decrypt supplied value if it appears to be encrypted.'''
         assert(type(raw_val) == str)
         if self.ck and raw_val.startswith(self.ck.sigil):
-            out = self.ck.crypter.decrypt(raw_val.split(self.ck.sigil)[1].encode())#.decode()
+            out = self.ck.crypter.decrypt(raw_val.split(self.ck.sigil)[1].encode()).decode()
+            assert(type(out) == str)
         else:
             out = raw_val
         return out
@@ -105,7 +106,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
                 return fallback
             else:
                 return default
-        val = self.val_decrypt(raw_val, sec=sec, key=key).decode()
+        val = self.val_decrypt(raw_val, sec=sec, key=key)
         assert(type(val) == str)
         return val
 
@@ -126,7 +127,8 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
                 #new_val = self.ck.sigil + self.ck.encrypt(new_val).decode('ascii')
                 new_val = self.ck.sigil + self.ck.encrypt(new_val.encode('utf8')).decode()
             out = self.raw_set(sec, key, new_val)
-            assert(type(out) == str)
+            if out:
+                assert(type(out) == str)
             return out
         
         old_raw_val = self.raw_get(sec, key)
@@ -147,7 +149,7 @@ class SecureConfigParser(ConfigParser, cryptkeeper_access_methods):
         for (key, val) in self.raw_items(sec):
             assert(type(key) == str)
             assert(type(val) == str)
-            val = self.val_decrypt(val, sec=sec, key=key).decode()
+            val = self.val_decrypt(val, sec=sec, key=key)
             assert(type(val) == str)
             yield (key, val)
 
