@@ -44,10 +44,9 @@ class TestCryptKeeper(unittest.TestCase):
         self.string_ck_wrong = CryptKeeper(key=TEST_KEYSTRING_WRONG)
 
     def test_FileCK_creates_keyfile(self):
-        self.assertTrue(os.path.exists(TEST_KEYFILE_PATH))
-        self.assertEqual(
-            self.file_ck.key, open(TEST_KEYFILE_PATH, "r").read().strip().encode(),
-        )
+        assert os.path.exists(TEST_KEYFILE_PATH)
+        with open(TEST_KEYFILE_PATH, "r") as fh:
+            assert self.file_ck.key == fh.read().strip()
 
     def test_EnvCK_creates_env(self):
         self.assertIn(TEST_KEYENV_NAME, os.environ)
@@ -62,22 +61,19 @@ class TestCryptKeeper(unittest.TestCase):
 
     def test_FileCK_from_file(self):
         file_ck = FileCryptKeeper(TEST_KEYFILE_PATH)
-        self.assertEqual(
-            file_ck.key, open(TEST_KEYFILE_PATH, "r").read().strip().encode(),
-        )
+        with open(TEST_KEYFILE_PATH, "r") as fh:
+            assert file_ck.key == fh.read().strip()
 
     def test_StringCK_key_eq_key(self):
-        self.assertEquals(self.string_ck.key, TEST_KEYSTRING)
+        self.assertEqual(self.string_ck.key, TEST_KEYSTRING)
 
-    @unittest.skip
     def test_bad_key_raises_InvalidToken(self):
         with self.assertRaises(InvalidToken):
             CryptKeeper(TEST_BAD_KEY)
 
     def test_wrong_key_raises_InvalidToken(self):
         enctxt = encrypt_string(TEST_KEYSTRING, "test string")
-        with self.assertRaises(InvalidToken):
-            self.string_ck_wrong.decrypt(enctxt)
+        self.assertRaises(InvalidToken, self.string_ck_wrong.decrypt, enctxt)
 
     def test_clean_key(self):
         key_with_whitespace = "\n" + TEST_KEYSTRING + "  "

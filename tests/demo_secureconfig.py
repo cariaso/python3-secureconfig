@@ -26,9 +26,8 @@ print(thing.cfg)
 print()
 
 print("Now let's write it to disk (%s)" % output_path)
-fh = open(output_path, 'w')
-thing.write(fh)
-fh.close()
+with open(output_path, 'w') as fh:
+    thing.write(fh)
 print('...done. \n')
 
 print("Continue with demo_secureconfig_2.py !")

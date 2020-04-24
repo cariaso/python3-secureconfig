@@ -30,6 +30,8 @@ from cryptography.fernet import Fernet
 
 
 def encrypt_string(key, input):
+    assert type(key) == bytes
+    assert type(input) == bytes
     ck = CryptKeeper(key)
     return ck.encrypt(input.encode())
 
@@ -107,6 +109,7 @@ class CryptKeeper(object):
 
     def _clean_key(self, key):
         "ensures a key free of surrounding whitespace and newlines."
+        assert type(key) == bytes
         return key.strip()
 
     def _gen_key(self):
@@ -115,10 +118,12 @@ class CryptKeeper(object):
 
     def encrypt(self, inp):
         "takes plaintext string and returns encrypted string"
+        assert type(inp) == bytes
         return self.crypter.encrypt(inp)
 
     def decrypt(self, inp):
         "takes encrypted string and returns plaintext string"
+        assert type(inp) == bytes
         return self.crypter.decrypt(inp)
 
     def store(self):
