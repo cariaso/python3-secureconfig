@@ -12,21 +12,23 @@ CWD = os.path.dirname(os.path.realpath(__file__))
 
 # please don't use any of these keystrings in real code. :(
 
-TEST_KEYSTRING = 'sFbO-GbipIFIpj64S2_AZBIPBvX80Yozszw7PR2dVFg='
-TEST_KEYSTRING_WRONG = 'UCPUOddzvewGWaJxW1ZlPKftdlS9SCUjwYUYwov0bT0='
+TEST_KEYSTRING = "sFbO-GbipIFIpj64S2_AZBIPBvX80Yozszw7PR2dVFg="
+TEST_KEYSTRING_WRONG = "UCPUOddzvewGWaJxW1ZlPKftdlS9SCUjwYUYwov0bT0="
 
-TEST_JSON = os.path.join(CWD, 'test.json')
-TEST_JSON_OUTFILE = os.path.join(CWD, 'test.json.enc')
+TEST_JSON = os.path.join(CWD, "test.json")
+TEST_JSON_OUTFILE = os.path.join(CWD, "test.json.enc")
 
 
 def create_test_json():
-    testd = {'things': {1: 'red', 2: 'blue'}, 'accessories': {'cat': 'hat', 'fish': 'bowl'}}
-    open(TEST_JSON, 'w').write(json.dumps(testd))
+    testd = {
+        "things": {1: "red", 2: "blue"},
+        "accessories": {"cat": "hat", "fish": "bowl"},
+    }
+    open(TEST_JSON, "w").write(json.dumps(testd))
 
     ck = CryptKeeper(key=TEST_KEYSTRING)
-    open(TEST_JSON_OUTFILE, 'w').write(
-        ck.encrypt(json.dumps(testd).encode()).decode()
-    )
+    open(TEST_JSON_OUTFILE, "w").write(ck.encrypt(json.dumps(testd).encode()).decode())
+
 
 def delete_test_json():
     os.remove(TEST_JSON)
@@ -34,7 +36,6 @@ def delete_test_json():
 
 
 class TestSecureConfig(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         create_test_json()
@@ -57,20 +58,20 @@ class TestSecureConfig(unittest.TestCase):
         pass
 
     def test_read_enc_without_key_raises_SecureConfigException(self):
-        'bad data or missing key'
-        kwargs = {'filepath': TEST_JSON_OUTFILE}
+        "bad data or missing key"
+        kwargs = {"filepath": TEST_JSON_OUTFILE}
         self.assertRaises(SecureConfigException, SecureJson, **kwargs)
 
     def test_read_enc_wrong_key_raises_InvalidToken(self):
-        'ValueError: No JSON object could be decoded'
+        "ValueError: No JSON object could be decoded"
         args = [TEST_KEYSTRING_WRONG]
-        kwargs = {'filepath': TEST_JSON_OUTFILE}
+        kwargs = {"filepath": TEST_JSON_OUTFILE}
         self.assertRaises(InvalidToken, SecureJson.from_key, *args, **kwargs)
 
     def test_read_enc_with_ck_produces_cfg(self):
         sj = SecureJson.from_key(TEST_KEYSTRING, filepath=TEST_JSON_OUTFILE)
         self.assertEqual(type(sj.cfg), type({}))
 
-if __name__ == '__main__':
-    unittest.main()
 
+if __name__ == "__main__":
+    unittest.main()
